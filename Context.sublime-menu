@@ -1,0 +1,14 @@
+[
+    {
+        "caption": "Open file",
+        "mnemonic": "O",
+        "id": "open_file",
+        "command": "local_link",
+    },
+    {
+        "caption": "Goto file",
+        "mnemonic": "G",
+        "id": "goto_file",
+        "command": "wiki_links",
+    }
+]

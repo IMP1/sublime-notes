@@ -1,0 +1,226 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: Note
+file_extensions: [note]
+scope: text.html.note
+variables:
+  urlchar:  '[\w\-\.~:/\?#\[\]@!$&''\(\)\*\+,;=%]'
+  url:      '[a-z]+?://{{urlchar}}+[\w/]'
+  year:     '\d{4}'
+  month:    '(?:0\d|1[0-2])'
+  day:      '(?:[0-2]\d|3[0-1])'
+  hour:     '(?:[0-1]\d|2[0-3])'
+  minute:   '[0-5]\d'
+  second:   '[0-5]\d'
+  timezone_1: '(?:Z|[+-]{{hour}}[03]0)'
+  timezone_2: '(?:Z|[+-]{{hour}}:[03]0)'
+  time_1:   '\b{{hour}}{{minute}}{{timezone_1}}?\b'
+  time_2:   '\b{{hour}}:{{minute}}(?::{{second}}(?:{{timezone_1}}|{{timezone_2}})?)?\b'
+contexts:
+  boldable:
+    - match: '\*\*(?=\S.*\*\*.*$)'
+      push: bold
+
+  italicable:
+    - match: '\*(?!\*)(?=\S.*\*.*$)'
+      push: italics
+
+  bold:
+    - include: italicable
+    - meta_scope: keyword.other.note
+    - match: '\*\*'
+      pop: true
+
+  italics:
+    - meta_scope: storage.type.note
+    - match: '\*'
+      pop: true
+
+  list:
+    - include: main
+    - match: '^'
+      pop: true
+
+  main:
+    - include: boldable
+    - include: italicable
+
+    # Headers
+    - match: '^\s*#\s.*$'
+      scope: string.unquoted.plain.note
+    - match: '^\s*##\s.*$'
+      scope: string.unquoted.plain.note
+    - match: '^\s*###\s.*$'
+      scope: string.unquoted.plain.note
+    - match: '^\s*####\s.*$'
+      scope: string.unquoted.plain.note
+
+    # Checkboxes
+    - match: '\[\s\]'
+      scope: markup.deleted.note
+
+    - match: '\[X\]'
+      scope: markup.inserted.note
+
+    - match: '\[\-\]'
+      scope: comment.line.note
+
+    - match: '\[\?\]'
+      scope: constant.language.note
+
+    - match: '(?<!\w|!)!{2,}'
+      scope: invalid.illegal.note
+
+    - match: '(?<!\w|\?)\?{2,}'
+      scope: invalid.deprecated.note
+
+    # Links
+    - match: '{{url}}'
+      scope: entity.name.link.external.note
+
+    - match: '\[(.+?)\]\(!({{url}})\)'
+      captures:
+        1: string.link.title.note
+        2: support.function.image.note
+    - match: '\(!({{url}})\)'
+      captures:
+          1: support.function.image.note
+
+    # Obsidian-Style Links
+    - match: '\!\[\[.+?\]\]'
+      scope: support.function.image.note
+    - match: '\[\[(.+?)\]\]'
+      scope: entity.name.link.note
+
+    # Local Links
+    - match: '{.+?}'
+      scope: entity.name.note
+
+    # Datetime
+    - match: '\b{{year}}(\-?){{month}}\1{{day}}T{{hour}}(:?){{minute}}\2{{second}}(?:Z|[\+\-]{{hour}}\2{{minute}})?\b'
+      scope: constant.language.note
+    # Date
+    - match: '\b{{year}}(\-?){{month}}\1{{day}}\b'
+      scope: constant.language.note
+    # Time
+    - match: '({{time_1}})\-({{time_1}})'
+      captures:
+        1: constant.language.note
+        2: constant.language.note
+    - match: '({{time_2}})\-({{time_2}})'
+      captures:
+        1: constant.language.note
+        2: constant.language.note
+    - match: '(?<!\S){{time_1}}(?!\S)'
+      scope: constant.language.note
+    - match: '(?<!\S){{time_2}}(?!\S)'
+      scope: constant.language.note
+
+    # Lists
+    - match: '(?<=^\s)\s*[\-\*·•](?=\s)'
+      push: unordered_list
+      scope: comment.line.note
+
+    - match: '^\s*(?:\s|\d)\d+\.(?=\s)'
+      push: ordered_list
+      scope: comment.line.note
+    - match: '^\s+[A-Z]\.(?=\s)'
+      push: ordered_list
+      scope: comment.line.note
+
+    # Code
+    - match: '```'
+      scope: constant.language.note
+      push: code_block
+    - match: '`'
+      scope: constant.language.note
+      push: code
+
+    # Quotes
+    - match: '^>\s+'
+      scope: comment.line.note
+      push: block_quote
+
+    - match: '~"'
+      push: double_quotes
+
+    # Topic
+    - match: 'RE:(?=\s*.*$)'
+      scope: support.function.topic.note
+
+    # Tags
+    - match: '#[\w\/]+'
+      scope: support.function.tag.note
+
+    # Mention
+    - match: '(?<!\w)@[\w]+'
+      scope: support.function.mention.note
+
+    # Comments
+    - match: '\(\-(?!\d)'
+      push: aside
+
+    # Horizontal Rule
+    - match: '^\s*\-\-\-\-\-\-\s*$'
+      scope: comment.line.note
+
+  aside:
+    - include: main
+    - meta_scope: comment.line.note
+    - match: '\-\)'
+      pop: true
+
+  unordered_list:
+    - meta_scope: markup.list.unnumbered.note
+    - include: list
+
+  ordered_list:
+    - meta_scope: markup.list.numbered.note
+    - include: list
+
+  code:
+    - meta_scope: constant.language.note
+    - match: '`'
+      scope: constant.language.note
+      pop: true
+  code_block:
+    - match: '(?<=```)\s*lua(?=\s*$)'
+      scope: keyword.other.note
+      push: Packages/Lua/Lua.sublime-syntax
+      with_prototype:
+        - match: (?=```)
+          pop: true
+    # - match: '(?<=```)\s*ruby(?=\s*$)'
+    #   scope: keyword.other.note
+    #   push: Packages/Ruby/Ruby.sublime-syntax
+    #   with_prototype:
+    #     - match: (?=```)
+    #       pop: true
+    - match: '(?<=```)\s*python(?=\s*$)'
+      scope: keyword.other.note
+      push: Packages/Python/Python.sublime-syntax
+      with_prototype:
+        - match: (?=```)
+          pop: true
+    - match: '(?<=```)\s*html(?=\s*$)'
+      scope: keyword.other.note
+      push: Packages/HTML/HTML.sublime-syntax
+      with_prototype:
+        - match: (?=```)
+          pop: true
+    - match: '```'
+      scope: constant.language.note
+      pop: true
+    # TODO: add other languages
+
+
+  double_quotes:
+    - meta_scope: support.function.note
+    - match: '"'
+      pop: true
+
+  block_quote:
+    - meta_scope: support.function.note
+    - match: '$'
+      pop: true

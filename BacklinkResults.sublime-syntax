@@ -1,0 +1,20 @@
+%YAML 1.2
+---
+scope: text.find-in-files
+contexts:
+  main:
+    # Filenames
+    - match: '^([^\s].*):$'
+      captures: 
+        1: entity.name.filename.find-in-files
+    # Line Numbers
+    - match: '^\s+([0-9]+)\s'
+      captures:
+        1: constant.numeric.line-number.find-in-files 
+    # Line Numbers
+    - match: '^\s+([0-9]+):'
+      captures:
+        1: constant.numeric.line-number.match.find-in-files 
+    # Skipped Characters
+    - match: '(... )?&lt;skipped [0-9]+ characters?&gt;( ...)?'
+      scope: comment.other.skipped.find-in-files
