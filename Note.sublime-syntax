@@ -6,7 +6,7 @@ file_extensions: [note]
 scope: text.html.note
 variables:
   urlchar:  '[\w\-\.~:/\?#\[\]@!$&''\(\)\*\+,;=%]'
-  url:      '[a-z]+?://{{urlchar}}+[\w/]'
+  url:      '\b[a-z]+?://{{urlchar}}+[\w/]'
   year:     '\d{4}'
   month:    '(?:0\d|1[0-2])'
   day:      '(?:[0-2]\d|3[0-1])'
@@ -43,6 +43,13 @@ contexts:
       pop: true
 
   main:
+
+    # Horizontal Rule
+    - match: '^\s*\-{6}\s*$'
+      scope: comment.line.note
+    - match: '^\s*\*{6}\s*$'
+      scope: comment.line.note
+
     - include: boldable
     - include: italicable
 
@@ -60,7 +67,7 @@ contexts:
     - match: '\[\s\]'
       scope: markup.deleted.note
 
-    - match: '\[X\]'
+    - match: '\[[Xx]\]'
       scope: markup.inserted.note
 
     - match: '\[\-\]'
@@ -160,10 +167,6 @@ contexts:
     # Comments
     - match: '\(\-(?!\d)'
       push: aside
-
-    # Horizontal Rule
-    - match: '^\s*\-\-\-\-\-\-\s*$'
-      scope: comment.line.note
 
   aside:
     - include: main
