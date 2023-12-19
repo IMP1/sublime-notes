@@ -1,5 +1,6 @@
 import sublime
 import sublime_plugin
+import webbrowser
 
 
 class OpenUrlUnderCursorCommand(sublime_plugin.TextCommand):
@@ -7,4 +8,4 @@ class OpenUrlUnderCursorCommand(sublime_plugin.TextCommand):
         for region in self.view.sel():
             scope_region = self.view.extract_scope(region.begin())
             url = self.view.substr(scope_region)
-            self.view.window().run_command ("open_url", {"url": url})
+            webbrowser.open_new_tab(url)
